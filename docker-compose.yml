@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: app
+    networks:
+      - backend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 3000:3000
+    depends_on:
+      - redis
+    command: "node -r ts-node/register ./node_modules/moleculer/bin/moleculer-runner.js --hot --repl --env --config moleculer.config.ts src/services/**/*.service.ts"  
+    volumes:
+      - ./:/app
+
+  redis:
+    image: redis:latest
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf:/usr/local/etc/redis
+    networks:
+      - backend
+    restart: unless-stopped
+    env_file: .env
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
+
+networks:
+  backend:
+    driver: bridge
+
