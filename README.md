@@ -28,11 +28,11 @@ To understand how to implement the code read the test cases and run it with the 
 
 `exit`
 
-3.  login docker container again
+6.  login docker container again
 
 `docker-compose exec app sh`
 
-5.  run test
+7.  run test
 
 `npm run jest`
 
