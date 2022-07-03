@@ -16,13 +16,21 @@ To understand how to implement the code read the test cases and run it with the 
 
 `docker-compose up -d`
 
-3.  login to docker container
+3.  run docker container
 
-`docker-compose exec app sh`
+`docker-compose run app sh`
 
 4.  install dependencies
 
 `npm i` 
+
+5.  exit docker run
+
+`exit`
+
+3.  login docker container again
+
+`docker-compose exec app sh`
 
 5.  run test
 
