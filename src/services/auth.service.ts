@@ -72,11 +72,14 @@ export default class HealthChecker extends Service {
             /** 
              * @todo implement service validation   
              */
+             token:{type:'string',min:48,max:48},
+             currentPassword:{type:'string', min:6, max:50},
+             newPassword:{type:'string', min:6, max:50}
           },
           async handler(ctx:Context<AuthenticationRequests.resetPasswordDoRequest>) {            
             return await new AuthController(broker,ctx).resetPassword(
               ctx.params.token,
-              ctx.params.currentPassword, 
+              ctx.params.currentPassword,
               ctx.params.newPassword)     
           }
         }

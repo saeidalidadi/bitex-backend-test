@@ -38,8 +38,21 @@ export default class AuthController<Req = unknown, Res extends {} = {}> extends 
     /**
      * @todo implement login logic
      */
+     if (!email || !password) {
+      throw BBError.InternalServerError
+    }
+    let user: User = await this.context.call('user.fetchUserByEmailAddress', { email: email }, { meta: { $cache: false }})
+    if (!user) {
+      throw BBError.InternalServerError
+    }
 
+    let validPassword = await bcrypt.compare(password, user.password);
+
+   if(validPassword) {
     return this.makeLoginToken(user)
+   }
+
+   throw BBError.AccessDenied 
 
   }
 
@@ -54,14 +67,25 @@ export default class AuthController<Req = unknown, Res extends {} = {}> extends 
     /**
      * @todo implement check password and reset password
      */
-   
+    
+    let validPassword = await bcrypt.compare(currentPassword, user.password);
+
+    if(validPassword) {
+      let newHashedPassword = bcrypt.hashSync(newPassword, user.salt)
+      await userController.updateUserPassword(user, newHashedPassword);
+    }
+
+    return true;
   }
 
   public async forgetPassword(emailAddress:string):Promise<Boolean>{
     /**
      * @todo implement user exist check
      */
-   
+     let user: User = await this.context.call('user.fetchUserByEmailAddress', { email: emailAddress }, { meta: { $cache: false }})
+     if (!user) {
+       throw BBError.InternalServerError
+     }
     const token:string = this.getForgetPasswordToken()
     const result = await new UserController(this.broker).updateUserToken(user,token)
     if (!result) {
@@ -75,8 +99,9 @@ export default class AuthController<Req = unknown, Res extends {} = {}> extends 
     /**
      * @todo: implement send mail event call
      */
+    this.broker.emit("email.send", {to, subject, body})
     
-    return true 
+    return true
   }
 
   /**
